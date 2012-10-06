@@ -50,7 +50,7 @@ function getData(strtorrent){
   
   if(data.length>0){
 
-    var cols,title,link;
+    var cols,title,link,aux;
     var oks = [];
     for(var i=7,z=data.length;i<z;i++){
       cols = data[i].split("<td");
@@ -61,14 +61,16 @@ function getData(strtorrent){
         link = ""; 
         torrents = getTagContent(cols[3],false,"td");
         torrents = torrents.split("<a");
+        link = [];
         for(var k=0,y=torrents.length;k<y;k++){
-          link = torrents[k].split("href=\"");
-          if(link.length>1 && link[1].indexOf('magnet')==-1){
-            link = link[1].slice(0,link[1].indexOf('"'));
+          aux = torrents[k].split("href=\"");
+          Logger.log(aux.length)
+          if(aux.length>1 && aux[1].indexOf("magnet")==-1){
+            link.push(aux[1].slice(0,aux[1].indexOf('"')));
             break;
           }
         }
-        if(title!="" && link!=""){
+        if(title!="" && link.length>0){
           oks.push([title,link]);
         }
       }
@@ -119,16 +121,20 @@ function main(){
   for(var l=0,x=props.length;l<x;l++){
     r = getData(props[l].toLowerCase());
     if(r.length==0){
-      Logger.log(reformatEpisode(props[l].toLowerCase()))
       r = getData(reformatEpisode(props[l].toLowerCase()));
     }  
     if(r.length>0){
-      updateProperties(props[l]);
-      body.push("<ul><li>",r[0][0],"<ul>");
+      body.push("<ul><li>",props[l].toUpperCase(),"<ul>");
       for(var i=0;i<r.length;i++){
-        body.push("<li>",r[i][1],"</li>");
+        body.push("<li>",r[i][0],"<ul>");
+        Logger.log(r[i][1].length)
+        for(var n=0;n<r[i][1].length;n++){
+          body.push("<li><a href='",r[i][1][n],"'>",r[i][1][n],"</a></li>");
+        }
+        body.push("</ul></li>");
       }
-      body.push("</ul></li></ul>");
+      body.push("</ul></ul></li></ul>");
+      updateProperties(props[l]);
     }
   }
   if(body.length>0){  
