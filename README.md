@@ -10,7 +10,7 @@ How to set up
 
 *	Create a SpreadSheet or a Script from your Google Drive
 
-	- If you create a SpreadSheet you have to go to Script Editor menu. Next steps are the same for SpreadSheet or Script. The firts column of the SpreadSheet has to contain the TV Shows.
+	- If you create a SpreadSheet you have to go to Script Editor menu. Next steps are the same for SpreadSheet or Script. First column of the SpreadSheet has to contain the TV Shows.
 
 	[<img src="https://raw.github.com/davidayalas/gas-torrent-emailer/master/samples/spreadsheet-script.png">](https://raw.github.com/davidayalas/gas-torrent-emailer/master/samples/spreadsheet-script.png)
 
