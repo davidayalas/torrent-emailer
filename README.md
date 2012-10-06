@@ -10,9 +10,11 @@ How to set up
 
 *	Create a SpreadSheet or a Script from your Google Drive
 
-	- If you created a SpreadSheet you have to go to Script Editor menu
+	- If you create a SpreadSheet you have to go to Script Editor menu. Next steps are the same for SpreadSheet or Script. The firts column of the SpreadSheet has to contain the TV Shows.
 
-*	Copy the code of the [script](https://raw.github.com/davidayalas/gas-torrent-emailer/master/gas-torrent-emailer.js)
+	[<img src="https://raw.github.com/davidayalas/gas-torrent-emailer/master/samples/spreadsheet-script.png">](https://raw.github.com/davidayalas/gas-torrent-emailer/master/samples/spreadsheet-script.png)
+
+*	Copy the code of the [script](https://raw.github.com/davidayalas/gas-torrent-emailer/master/gas-torrent-emailer.js) in your script
 
 * 	Go to **File > Project Properties**, and in the pop up window, select **User properties** and add a list with your TV Shows. The format has to be "tv show sXXeXX" where "s" is the season and "e" the current episode to download. Sample "Dexter s07e01"
 
@@ -26,4 +28,4 @@ How to set up
 
 	[<img src="https://raw.github.com/davidayalas/gas-torrent-emailer/master/samples/scheduler-2.png">](https://raw.github.com/davidayalas/gas-torrent-emailer/master/samples/scheduler-2.png)
 
-
+*	Enjoy it

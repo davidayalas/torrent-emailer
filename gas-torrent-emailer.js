@@ -64,7 +64,6 @@ function getData(strtorrent){
         link = [];
         for(var k=0,y=torrents.length;k<y;k++){
           aux = torrents[k].split("href=\"");
-          Logger.log(aux.length)
           if(aux.length>1 && aux[1].indexOf("magnet")==-1){
             link.push(aux[1].slice(0,aux[1].indexOf('"')));
             break;
@@ -83,15 +82,24 @@ function getData(strtorrent){
  * Updates the string prop to "tvshow s01e01" + 1
  *
  * @param {String} str
+ * @param {Object} as, activesheet
+ * @param {Number} i, index, if as
  */
-function updateProperties(str){
+function updateProperties(str,as,i){
   var tvshow = str.slice(0,str.lastIndexOf(" "));
   var currentEpisode = str.slice(str.lastIndexOf(" "));
   var season = currentEpisode.slice(0,currentEpisode.indexOf("e")+1);
   var episode = currentEpisode.slice(currentEpisode.indexOf("e")+1);
   episode = ""+((episode*1)+1);
-  UserProperties.deleteProperty(str);
-  UserProperties.setProperty(tvshow + season + (episode.length==1?"0"+episode:episode),"");
+  
+  tvshow = tvshow + season + (episode.length==1?"0"+episode:episode);
+  
+  if(as){
+    as.getRange("A"+i).setValue(tvshow);  
+  }else{
+    UserProperties.deleteProperty(str);
+    UserProperties.setProperty(tvshow,"");
+  }
 }
 
 /**
@@ -110,13 +118,27 @@ function reformatEpisode(str){
 }
 
 /**
- * Check for the TV Shows in the User Properties and emails the torrents if find them. 
+ * Check for the TV Shows in the User Properties and emails the torrents if it finds them. 
  * Pattern of properties has to be "tvshow sXXeXX" > "dexter s07s07"
  */
 function main(){
   var body = [];
-  var props = UserProperties.getKeys();
+  var props = [];
   var r;
+  var as = SpreadsheetApp.getActiveSheet();
+  
+  if(as){
+    var c = 1;
+    do{
+      r = as.getRange("A"+c).getValue();
+      if(r!=""){
+        props.push(r);
+      }
+      c++;
+    }while(r!="")  
+  }else{
+    props = UserProperties.getKeys();
+  }
   
   for(var l=0,x=props.length;l<x;l++){
     r = getData(props[l].toLowerCase());
@@ -124,17 +146,16 @@ function main(){
       r = getData(reformatEpisode(props[l].toLowerCase()));
     }  
     if(r.length>0){
-      body.push("<ul><li>",props[l].toUpperCase(),"<ul>");
+      body.push("<ul><li><strong>",props[l].toUpperCase(),"</strong><ul>");
       for(var i=0;i<r.length;i++){
         body.push("<li>",r[i][0],"<ul>");
-        Logger.log(r[i][1].length)
         for(var n=0;n<r[i][1].length;n++){
           body.push("<li><a href='",r[i][1][n],"'>",r[i][1][n],"</a></li>");
         }
         body.push("</ul></li>");
       }
       body.push("</ul></ul></li></ul>");
-      updateProperties(props[l]);
+      updateProperties(props[l],as,l+1);
     }
   }
   if(body.length>0){  
