@@ -3,7 +3,7 @@ How to use
 
 From your Google Drive, you can create a Script or a SpreadSheet. Then you have to setup the TV Shows you are watching.
 
-You will receive an email with the torrents of yours TV shows depending on the scheduled time of the script.
+You will receive an email with the torrents of yours TV shows depending on the scheduled time of the script. It will check http://eztv.it for torrents.
 
 How to set up
 --------------
