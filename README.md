@@ -22,7 +22,7 @@ How to set up
 
 	[<img src="https://raw.github.com/davidayalas/torrent-emailer/master/samples/project-properties-2.png">](https://raw.github.com/davidayalas/torrent-emailer/master/samples/project-properties-2.png)
 
-*	Schedule a time to execute the search of torrents. Go to **Resources > Current script's triggers** and schedule the "main" function a number of hours: 6 or 12 or once a week will be right.
+*	Schedule a time to execute the search of torrents. Go to **Resources > Current script's triggers** and schedule the "main" function a number of hours: 6 or 12 hours or once a week will be right.
 
 	[<img src="https://raw.github.com/davidayalas/torrent-emailer/master/samples/scheduler-1.png">](https://raw.github.com/davidayalas/torrent-emailer/master/samples/scheduler-1.png)
 
