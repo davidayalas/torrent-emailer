@@ -28,6 +28,8 @@ How to set up
 
 	[<img src="https://raw.github.com/davidayalas/torrent-emailer/master/samples/scheduler-2.png">](https://raw.github.com/davidayalas/torrent-emailer/master/samples/scheduler-2.png)
 
-*   Run a execution of "main" function. It will request to you to allow the script to execute.
+*   Run an execution of "main" function. It will request to you to allow the script to execute.
+
+	[<img src="https://raw.github.com/davidayalas/torrent-emailer/master/samples/run.png">](https://raw.github.com/davidayalas/torrent-emailer/master/samples/run.png)
 
 *	Enjoy it
