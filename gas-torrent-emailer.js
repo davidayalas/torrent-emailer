@@ -97,8 +97,8 @@ function updateProperties(str,as,i){
   if(as){
     as.getRange("A"+i).setValue(tvshow);  
   }else{
-    UserProperties.deleteProperty(str);
-    UserProperties.setProperty(tvshow,"");
+    ScriptProperties.deleteProperty(str);
+    ScriptProperties.setProperty(tvshow,"");
   }
 }
 
@@ -137,7 +137,7 @@ function main(){
       c++;
     }while(r!="")  
   }else{
-    props = UserProperties.getKeys();
+    props = ScriptProperties.getKeys();
   }
   
   for(var l=0,x=props.length;l<x;l++){

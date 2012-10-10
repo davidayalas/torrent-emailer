@@ -16,7 +16,7 @@ How to set up
 
 *	Copy the code of the [script](https://raw.github.com/davidayalas/gas-torrent-emailer/master/gas-torrent-emailer.js) in your script
 
-* 	If you will use only the script, go to **File > Project Properties**, and in the pop up window, select **User properties** and add a list with your TV Shows. If you will use a SpreadSheet to manage your TV Shows, first column of the SpreadSheet has to contain the them. The format has to be "tv show sXXeXX" where "s" is the season and "e" the current episode to download. Sample "Dexter s07e01"
+* 	If you will use only the script, go to **File > Project Properties**, and in the pop up window, select **Project properties** and add a list with your TV Shows. If you will use a SpreadSheet to manage your TV Shows, first column of the SpreadSheet has to contain the them. The format has to be "tv show sXXeXX" where "s" is the season and "e" the current episode to download. Sample "Dexter s07e01"
 
 	[<img src="https://raw.github.com/davidayalas/gas-torrent-emailer/master/samples/project-properties.png">](https://raw.github.com/davidayalas/gas-torrent-emailer/master/samples/project-properties.png)
 
@@ -27,5 +27,7 @@ How to set up
 	[<img src="https://raw.github.com/davidayalas/gas-torrent-emailer/master/samples/scheduler-1.png">](https://raw.github.com/davidayalas/gas-torrent-emailer/master/samples/scheduler-1.png)
 
 	[<img src="https://raw.github.com/davidayalas/gas-torrent-emailer/master/samples/scheduler-2.png">](https://raw.github.com/davidayalas/gas-torrent-emailer/master/samples/scheduler-2.png)
+
+*   Run a execution of "main" function. It will request to you to allow the script to execute.
 
 *	Enjoy it
