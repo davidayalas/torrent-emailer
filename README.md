@@ -12,21 +12,21 @@ How to set up
 
 	- If you create a SpreadSheet you have to go to Script Editor menu. Next steps are the same for SpreadSheet or Script. 
 
-	[<img src="https://raw.github.com/davidayalas/gas-torrent-emailer/master/samples/spreadsheet-script.png">](https://raw.github.com/davidayalas/gas-torrent-emailer/master/samples/spreadsheet-script.png)
+	[<img src="https://raw.github.com/davidayalas/torrent-emailer/master/samples/spreadsheet-script.png">](https://raw.github.com/davidayalas/torrent-emailer/master/samples/spreadsheet-script.png)
 
-*	Copy the code of the [script](https://raw.github.com/davidayalas/gas-torrent-emailer/master/gas-torrent-emailer.js) in your script
+*	Copy the code of the [script](https://raw.github.com/davidayalas/torrent-emailer/master/torrent-emailer.js) in your script
 
 * 	If you will use only the script, go to **File > Project Properties**, and in the pop up window, select **Project properties** and add a list with your TV Shows. If you will use a SpreadSheet to manage your TV Shows, first column of the SpreadSheet has to contain the them. The format has to be "tv show sXXeXX" where "s" is the season and "e" the current episode to download. Sample "Dexter s07e01"
 
-	[<img src="https://raw.github.com/davidayalas/gas-torrent-emailer/master/samples/project-properties.png">](https://raw.github.com/davidayalas/gas-torrent-emailer/master/samples/project-properties.png)
+	[<img src="https://raw.github.com/davidayalas/torrent-emailer/master/samples/project-properties.png">](https://raw.github.com/davidayalas/torrent-emailer/master/samples/project-properties.png)
 
-	[<img src="https://raw.github.com/davidayalas/gas-torrent-emailer/master/samples/project-properties-2.png">](https://raw.github.com/davidayalas/gas-torrent-emailer/master/samples/project-properties-2.png)
+	[<img src="https://raw.github.com/davidayalas/torrent-emailer/master/samples/project-properties-2.png">](https://raw.github.com/davidayalas/torrent-emailer/master/samples/project-properties-2.png)
 
 *	Schedule a time to execute the search of torrents. Go to **Resources > Current script's triggers** and schedule the "main" function a number of hours: 6 or 12 or once a week will be right.
 
-	[<img src="https://raw.github.com/davidayalas/gas-torrent-emailer/master/samples/scheduler-1.png">](https://raw.github.com/davidayalas/gas-torrent-emailer/master/samples/scheduler-1.png)
+	[<img src="https://raw.github.com/davidayalas/torrent-emailer/master/samples/scheduler-1.png">](https://raw.github.com/davidayalas/torrent-emailer/master/samples/scheduler-1.png)
 
-	[<img src="https://raw.github.com/davidayalas/gas-torrent-emailer/master/samples/scheduler-2.png">](https://raw.github.com/davidayalas/gas-torrent-emailer/master/samples/scheduler-2.png)
+	[<img src="https://raw.github.com/davidayalas/torrent-emailer/master/samples/scheduler-2.png">](https://raw.github.com/davidayalas/torrent-emailer/master/samples/scheduler-2.png)
 
 *   Run a execution of "main" function. It will request to you to allow the script to execute.
 
