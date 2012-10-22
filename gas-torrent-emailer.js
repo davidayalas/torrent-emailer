@@ -139,14 +139,16 @@ function main(){
   }else{
     props = ScriptProperties.getKeys();
   }
-  
+    
+  var chapter;
   for(var l=0,x=props.length;l<x;l++){
-    r = getData(props[l].toLowerCase());
+    chapter = props[l].toLowerCase();
+    r = getData(chapter);
     if(r.length==0){
-      r = getData(reformatEpisode(props[l].toLowerCase()));
+      r = getData(reformatEpisode(chapter));
     }  
     if(r.length>0){
-      body.push("<ul><li><strong>",props[l].toUpperCase(),"</strong><ul>");
+      body.push("<ul><li><strong>",chapter.toUpperCase(),"</strong><ul>");
       for(var i=0;i<r.length;i++){
         body.push("<li>",r[i][0],"<ul>");
         for(var n=0;n<r[i][1].length;n++){
@@ -155,7 +157,7 @@ function main(){
         body.push("</ul></li>");
       }
       body.push("</ul></ul></li></ul>");
-      updateProperties(props[l],as,l+1);
+      updateProperties(chapter,as,l+1);
     }
   }
   if(body.length>0){  
