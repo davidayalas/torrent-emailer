@@ -142,7 +142,7 @@ function main(){
     props = ScriptProperties.getKeys();
   }
     
-  var chapter,original;
+  var chapter;
   for(var l=0,x=props.length;l<x;l++){
     chapter = props[l].toLowerCase();
     r = getData(chapter);
