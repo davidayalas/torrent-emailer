@@ -84,8 +84,10 @@ function getData(strtorrent){
  * @param {String} str
  * @param {Object} as, activesheet
  * @param {Number} i, index, if as
+ * @param {String} original
+ *                 string in properties, if season or episode are uppercase they will be updated to lowercase 
  */
-function updateProperties(str,as,i){
+function updateProperties(str,as,i,original){
   var tvshow = str.slice(0,str.lastIndexOf(" "));
   var currentEpisode = str.slice(str.lastIndexOf(" "));
   var season = currentEpisode.slice(0,currentEpisode.indexOf("e")+1);
@@ -97,7 +99,7 @@ function updateProperties(str,as,i){
   if(as){
     as.getRange("A"+i).setValue(tvshow);  
   }else{
-    ScriptProperties.deleteProperty(str);
+    ScriptProperties.deleteProperty(original);
     ScriptProperties.setProperty(tvshow,"");
   }
 }
@@ -140,7 +142,7 @@ function main(){
     props = ScriptProperties.getKeys();
   }
     
-  var chapter;
+  var chapter,original;
   for(var l=0,x=props.length;l<x;l++){
     chapter = props[l].toLowerCase();
     r = getData(chapter);
@@ -157,7 +159,7 @@ function main(){
         body.push("</ul></li>");
       }
       body.push("</ul></ul></li></ul>");
-      updateProperties(chapter,as,l+1);
+      updateProperties(chapter,as,l+1,props[l]);
     }
   }
   if(body.length>0){  
