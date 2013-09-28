@@ -3,7 +3,9 @@ Torrent emailer
 
 From your Google Drive, you can create a Script or a SpreadSheet. Then you have to setup the TV Shows you are watching.
 
-You will receive an email with the torrents of yours TV shows depending on the scheduled time of the script. It will check http://eztv.it for new torrents.
+You will receive an email with the torrents of yours TV shows depending on the scheduled time of the script. It will check http://eztv.it for new torrents. You have to ensure the TV show is exactly the same in your properties than in eztv.it. E.g.:
+
+* if you are looking for "Agents of S.H.I.E.L.D" you must look first at eztv.it and you will get the show is named "Marvels Agents of S H I E L D". This is the name you have to setup: "Marvels Agents of S H I E L D s01e01" (case insensitive)
 
 How to set up
 --------------
