@@ -4,7 +4,7 @@
  * @param {String} str
  * @return {String}
  */
-function replaces(str){
+var replaces = function(str){
   return str.replace(/<[^>]*>/g," ")
             .replace(/[\t\r\n]/g,"")
             .replace(/\[.*\]/g,"")
@@ -22,7 +22,7 @@ function replaces(str){
  *        tag to search
  * @return {String}
  */
-function getTagContent(str,isInitTagClosed,tag){
+var getTagContent = function(str,isInitTagClosed,tag){
   return str.slice((isInitTagClosed?0:str.indexOf(">")+1),str.indexOf("</"+tag));      
 }  
 
@@ -32,7 +32,7 @@ function getTagContent(str,isInitTagClosed,tag){
  * @param {String} str
  * @return {Array}
  */
-function getData(strtorrent){
+var getData = function(strtorrent){
   var response = UrlFetchApp.fetch("http://eztv.it/search/",{    
     'payload' : {
         'SearchString1': strtorrent
@@ -87,7 +87,7 @@ function getData(strtorrent){
  * @param {String} original
  *                 string in properties, if season or episode are uppercase they will be updated to lowercase 
  */
-function updateProperties(str,as,i,original){
+var updateProperties = function(str,as,i,original){
   var tvshow = str.slice(0,str.lastIndexOf(" "));
   var currentEpisode = str.slice(str.lastIndexOf(" "));
   var season = currentEpisode.slice(0,currentEpisode.indexOf("e")+1);
@@ -110,7 +110,7 @@ function updateProperties(str,as,i,original){
  * @param {String} str
  * @return {String}
  */
-function reformatEpisode(str){
+var reformatEpisode = function(str){
   var tvshow = str.slice(0,str.lastIndexOf(" "));
   var currentEpisode = str.slice(str.lastIndexOf(" ")+1);
   var season = currentEpisode.slice(1,currentEpisode.indexOf("e"));
