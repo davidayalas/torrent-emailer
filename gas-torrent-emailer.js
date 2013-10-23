@@ -1,3 +1,16 @@
+/*
+* onOpen event
+*/
+function onOpen() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  if(ss){
+    var menuEntries = [ 
+      {name: "Get", functionName: "main"}
+    ];
+    ss.addMenu("Torrents", menuEntries);
+  }
+}
+
 /**
  * Do replacements to clean text
  *
