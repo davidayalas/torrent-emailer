@@ -50,7 +50,6 @@ var getData = function(strtorrent){
   var torrents = [];
  
   torrents = eztvData(strtorrent);
-Logger.log(torrents)
   if(torrents.length==0){
     torrents = pirateBayData(strtorrent);
   }
