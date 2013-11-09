@@ -22,6 +22,7 @@ var replaces = function(str){
             .replace(/[\t\r\n]/g,"")
             .replace(/\[.*\]/g,"")
             .replace(/^\s+|\s+$/g,"")
+            .replace(/\./g," ")
          ;
 }  
 
@@ -40,12 +41,29 @@ var getTagContent = function(str,isInitTagClosed,tag){
 }  
 
 /**
- * Get content from eztv.it and parses it
+ * Searches for torrent content
  *
  * @param {String} str
  * @return {Array}
  */
 var getData = function(strtorrent){
+  var torrents = [];
+ 
+  torrents = eztvData(strtorrent);
+Logger.log(torrents)
+  if(torrents.length==0){
+    torrents = pirateBayData(strtorrent);
+  }
+  return torrents;
+}
+
+/**
+ * Adapter for eztv.it 
+ *
+ * @param {String} str
+ * @return {Array}
+ */
+var eztvData = function(strtorrent){
   var response = UrlFetchApp.fetch("http://eztv.it/search/",{    
     'payload' : {
         'SearchString1': strtorrent
@@ -90,6 +108,55 @@ var getData = function(strtorrent){
     return oks;
   }
 }  
+
+/**
+ * Adapter for PirateBay 
+ *
+ * @param {String} str
+ * @return {Array}
+ */
+var pirateBayData = function(strtorrent){
+  var response = UrlFetchApp.fetch("http://thepiratebay.sx/search/"+encodeURIComponent(strtorrent)+"/0/99/0");  
+
+  var data = response.getContentText();
+  
+  data = data.split("<tr>");
+  
+  if(data.length>0){
+    var cols,title,link,aux,torrents;
+    var oks = [];
+    
+    for(var i=1,z=data.length;i<z;i++){
+      cols = data[i].split("<td");
+      title = replaces(getTagContent(cols[2],false,"a"));
+
+      //title matching
+      if(title.toLowerCase().indexOf(strtorrent)>-1){
+        torrents = cols[2].split("magnet:?");
+        if(torrents.length>1){
+          //torrent file
+          link = [];
+          link.push(["magnet:?"+torrents[1].slice(0,torrents[1].indexOf('&tr=')),getTagContent(cols[3],false,"td")]); //link, seeds
+          if(title!="" && link.length>0){
+            oks.push([title,link]); 
+          }
+        }
+      }
+    }
+    
+    //gets only five first links and I need a significant number of torrents (10?) to avoid trailers, or something else than a TV Show 
+    if(oks.length>=10){
+      oks.sort(function(a,b){
+        return b[1][0][1]-a[1][0][1];
+      });
+      if(oks.length>5){
+        oks = oks.slice(0,5);
+      }
+      return oks;
+    }    
+  }
+  return [];
+}
 
 /**
  * Updates the string prop to "tvshow s01e01" + 1
@@ -174,8 +241,10 @@ function main(){
       body.push("</ul></ul></li></ul>");
       updateProperties(chapter,as,l+1,props[l]);
     }
+    if(body.length>0){  
+      MailApp.sendEmail(Session.getUser().getEmail(), "[Google Apps Torrent Email] - " + chapter.toUpperCase(),"", {htmlBody: body.join("")});  
+    }
+    body=[];
   }
-  if(body.length>0){  
-    MailApp.sendEmail(Session.getUser().getEmail(), "[Google Apps Torrent Email] - TV Shows ","", {htmlBody: body.join("")});  
-  }
+    
 } 

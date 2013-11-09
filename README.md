@@ -16,7 +16,7 @@ How to set up
 
 	[<img src="https://raw.github.com/davidayalas/torrent-emailer/master/samples/spreadsheet-script.png">](https://raw.github.com/davidayalas/torrent-emailer/master/samples/spreadsheet-script.png)
 
-	In this case you can also execute manually the script in the SpreadSheet menu Torrent > Get
+	In this case you can also execute manually the script in the SpreadSheet menu Torrents > Get
 
 *	Copy the code of the [script](https://raw.github.com/davidayalas/torrent-emailer/master/gas-torrent-emailer.js) in your script
 
