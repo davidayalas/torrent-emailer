@@ -92,11 +92,10 @@ var eztvData = function(strtorrent){
         torrents = getTagContent(cols[3],false,"td");
         torrents = torrents.split("<a");
         link = [];
-        for(var k=0,y=torrents.length;k<y;k++){
-          aux = torrents[k].split("href=\"");
+        if(torrents.length>=3){
+          aux = torrents[3].split("href=\"");
           if(aux.length>1 && aux[1].indexOf("magnet")==-1){
             link.push(aux[1].slice(0,aux[1].indexOf('"')));
-            break;
           }
         }
         if(title!="" && link.length>0){
@@ -115,7 +114,9 @@ var eztvData = function(strtorrent){
  * @return {Array}
  */
 var pirateBayData = function(strtorrent){
-  var response = UrlFetchApp.fetch("http://thepiratebay.sx/search/"+encodeURIComponent(strtorrent)+"/0/99/0");  
+  var response = UrlFetchApp.fetch("http://thepiratebay.pe/search/"+encodeURIComponent(strtorrent)+"/0/99/0",{    
+    'muteHttpExceptions' : true
+  });  
 
   var data = response.getContentText();
   
