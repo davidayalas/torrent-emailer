@@ -63,17 +63,25 @@ var getData = function(strtorrent){
  * @return {Array}
  */
 var eztvData = function(strtorrent){
-  var response = UrlFetchApp.fetch("http://eztv.it/search/",{    
-    'payload' : {
-        'SearchString1': strtorrent
-      },
-      'headers' : {
-        'contentType' : 'text/html; charset=utf-8',
-      },
-      'method' : 'post',
-      'muteHttpExceptions' : true
-  });  
-
+  var response = null;
+  
+  try{
+    response = UrlFetchApp.fetch("http://eztv.it/search/",{    
+      'payload' : {
+          'SearchString1': strtorrent
+        },
+        'headers' : {
+          'contentType' : 'text/html; charset=utf-8',
+        },
+        'method' : 'post',
+        'muteHttpExceptions' : true
+    });  
+  }catch(e){
+    Logger.log("eztv.it dns error");
+  } 
+  
+  if(response===null) return [];
+  
   var data = response.getContentText();
   
   data = data.split("forum_header_border");
@@ -114,9 +122,18 @@ var eztvData = function(strtorrent){
  * @return {Array}
  */
 var pirateBayData = function(strtorrent){
-  var response = UrlFetchApp.fetch("http://thepiratebay.pe/search/"+encodeURIComponent(strtorrent)+"/0/99/0",{    
-    'muteHttpExceptions' : true
-  });  
+  
+  var response = null;
+  
+  try{
+    response = UrlFetchApp.fetch("http://thepiratebay.pe/search/"+encodeURIComponent(strtorrent)+"/0/99/0",{    
+      'muteHttpExceptions' : true
+    });
+  }catch(e){
+    Logger.log("piratebay dns error");
+  } 
+  
+  if(response===null) return [];
 
   var data = response.getContentText();
   
