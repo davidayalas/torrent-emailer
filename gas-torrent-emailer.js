@@ -57,6 +57,27 @@ var getData = function(strtorrent){
 }
 
 /**
+ * Http muted request 
+ *
+ * @param {String} url
+ * @param {Object} options
+ * @return {String} html
+ */
+var httpMutedRequest = function(url,options){
+  var res=null;
+  if(typeof options!=="object"){
+    options = {};
+  }
+  options["muteHttpExceptions"]=true;
+  try{
+    res = UrlFetchApp.fetch(url,options);
+  }catch(e){
+    Logger.log("http error " + url);
+  } 
+  return res;
+} 
+
+/**
  * Adapter for eztv.it 
  *
  * @param {String} str
@@ -66,15 +87,14 @@ var eztvData = function(strtorrent){
   var response = null;
   
   try{
-    response = UrlFetchApp.fetch("http://eztv.it/search/",{    
-      'payload' : {
+    response = httpMutedRequest("http://eztv.it/search/",{    
+       'payload' : {
           'SearchString1': strtorrent
         },
         'headers' : {
           'contentType' : 'text/html; charset=utf-8',
         },
         'method' : 'post',
-        'muteHttpExceptions' : true
     });  
   }catch(e){
     Logger.log("eztv.it dns error");
@@ -116,6 +136,23 @@ var eztvData = function(strtorrent){
 }  
 
 /**
+ * Get the current DNS for piratebay and set its in Public Cache (if it was shared...) 
+ *
+ */
+var getPirateBayDNS = function(){
+  var dns = ["sx","se","pe"];
+  for(var d=0,r=dns.length;d<r;d++){
+    try{
+      response = UrlFetchApp.fetch("http://thepiratebay."+dns[d],{'muteHttpExceptions' : true});
+      CacheService.getPublicCache().put("piratebaydns", "thepiratebay."+dns[d]);
+      return;
+    }catch(e){
+      Logger.log("http://thepiratebay."+dns[d]+" error");
+    } 
+  }
+}
+
+/**
  * Adapter for PirateBay 
  *
  * @param {String} str
@@ -125,13 +162,16 @@ var pirateBayData = function(strtorrent){
   
   var response = null;
   
-  try{
-    response = UrlFetchApp.fetch("http://thepiratebay.pe/search/"+encodeURIComponent(strtorrent)+"/0/99/0",{    
-      'muteHttpExceptions' : true
-    });
-  }catch(e){
-    Logger.log("piratebay dns error");
-  } 
+  if(CacheService.getPublicCache().get("piratebaydns")===""){
+    getPirateBayDNS();
+  }
+  
+  response = httpMutedRequest("http://"+CacheService.getPublicCache().get("piratebaydns")+"/search/"+encodeURIComponent(strtorrent)+"/0/99/0");
+  
+  if(response===null){//maybe dns problem
+    getPirateBayDNS();
+    response = httpMutedRequest("http://"+CacheService.getPublicCache().get("piratebaydns")+"/search/"+encodeURIComponent(strtorrent)+"/0/99/0");
+  }
   
   if(response===null) return [];
 
