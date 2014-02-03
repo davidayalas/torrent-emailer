@@ -84,21 +84,16 @@ var httpMutedRequest = function(url,options){
  * @return {Array}
  */
 var eztvData = function(strtorrent){
-  var response = null;
   
-  try{
-    response = httpMutedRequest("http://eztv.it/search/",{    
-       'payload' : {
-          'SearchString1': strtorrent
-        },
-        'headers' : {
-          'contentType' : 'text/html; charset=utf-8',
-        },
-        'method' : 'post',
-    });  
-  }catch(e){
-    Logger.log("eztv.it dns error");
-  } 
+  var response = httpMutedRequest("http://eztv.it/search/",{    
+     'payload' : {
+        'SearchString1': strtorrent
+      },
+      'headers' : {
+        'contentType' : 'text/html; charset=utf-8',
+      },
+      'method' : 'post',
+  });  
   
   if(response===null) return [];
   
@@ -142,13 +137,11 @@ var eztvData = function(strtorrent){
 var getPirateBayDNS = function(){
   var dns = ["sx","se","pe"];
   for(var d=0,r=dns.length;d<r;d++){
-    try{
-      response = UrlFetchApp.fetch("http://thepiratebay."+dns[d],{'muteHttpExceptions' : true});
+    response = httpMutedRequest("http://thepiratebay."+dns[d]);
+    if(response!==null){
       CacheService.getPublicCache().put("piratebaydns", "thepiratebay."+dns[d]);
       return;
-    }catch(e){
-      Logger.log("http://thepiratebay."+dns[d]+" error");
-    } 
+    }
   }
 }
 
