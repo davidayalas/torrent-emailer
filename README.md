@@ -34,6 +34,8 @@ How to set up
 
 *   Run an execution of "main" function. It will request to you to allow the script to execute.
 
-	[<img src="https://raw.github.com/davidayalas/torrent-emailer/master/samples/run.png">](https://raw.github.com/davidayalas/torrent-emailer/master/samples/run.png)
+	[<img src="https://raw.github.com/davidayalas/torrent-emailer/master/samples/run.png">](https://raw.github.com/davidayalas/torrent-emailer/master/samples/run.png)<br /><br />
+
+*    You can setup a special **Project Property** named "priority" with the values of "eztv" or "pb" (thepiratebay), separated by comma (","), to select the order of the services to query for torrents. Default processing order is 1: eztv and 2: thepiratebay. For example, you can setup: "eztv,pb" or "pb,eztv" or only one "pb" or "eztv"<br /><br /> 
 
 *	Enjoy it

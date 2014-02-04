@@ -44,14 +44,21 @@ var getTagContent = function(str,isInitTagClosed,tag){
  * Searches for torrent content
  *
  * @param {String} str
+ * @param {Array} services
  * @return {Array}
  */
-var getData = function(strtorrent){
+var getData = function(strtorrent, services){
   var torrents = [];
- 
-  torrents = eztvData(strtorrent);
-  if(torrents.length==0){
-    torrents = pirateBayData(strtorrent);
+  var dataServices = {
+    "eztv" : "eztvData",
+    "pb" : "pirateBayData"
+  };
+  var self = this;
+
+  for(var i=0,z=services.length;i<z;i++){
+    if(torrents.length==0 && dataServices[services[i]]){
+      torrents = self[dataServices[services[i]]](strtorrent);
+    }
   }
   return torrents;
 }
@@ -84,7 +91,6 @@ var httpMutedRequest = function(url,options){
  * @return {Array}
  */
 var eztvData = function(strtorrent){
-  
   var response = httpMutedRequest("http://eztv.it/search/",{    
      'payload' : {
         'SearchString1': strtorrent
@@ -135,7 +141,7 @@ var eztvData = function(strtorrent){
  *
  */
 var getPirateBayDNS = function(){
-  var dns = ["sx","se","pe"];
+  var dns = ["org","sx","se","pe"];
   for(var d=0,r=dns.length;d<r;d++){
     response = httpMutedRequest("http://thepiratebay."+dns[d]);
     if(response!==null){
@@ -152,10 +158,9 @@ var getPirateBayDNS = function(){
  * @return {Array}
  */
 var pirateBayData = function(strtorrent){
-  
   var response = null;
   
-  if(CacheService.getPublicCache().get("piratebaydns")===""){
+  if(CacheService.getPublicCache().get("piratebaydns")==="" || CacheService.getPublicCache().get("piratebaydns")===null){
     getPirateBayDNS();
   }
   
@@ -258,6 +263,9 @@ function main(){
   var props = [];
   var r;
   var as = SpreadsheetApp.getActiveSheet();
+  var priority = ScriptProperties.getProperty("priority");
+  
+  priority = priority===null?["eztv","pb"]:priority.split(",");
   
   if(as){
     var c = 1;
@@ -275,9 +283,13 @@ function main(){
   var chapter;
   for(var l=0,x=props.length;l<x;l++){
     chapter = props[l].toLowerCase();
-    r = getData(chapter);
+    if(chapter==="priority"){ //priority is an option
+      continue;
+    }
+
+    r = getData(chapter, priority);
     if(r.length==0){
-      r = getData(reformatEpisode(chapter));
+      r = getData(reformatEpisode(chapter), priority);
     }  
     if(r.length>0){
       body.push("<ul><li><strong>",chapter.toUpperCase(),"</strong><ul>");
