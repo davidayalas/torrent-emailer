@@ -204,6 +204,22 @@ var pirateBayData = function(strtorrent){
       oks.sort(function(a,b){
         return b[1][0][1]-a[1][0][1];
       });
+      
+      //deletes repeated torrents with less seeds
+      var titles = {};
+      var deletes = [];
+      for(var i=0,z=oks.length;i<z;i++){
+        if(titles[oks[i][0].toLowerCase()]){
+          deletes.push(i)
+        }else{
+          titles[oks[i][0].toLowerCase()] = 1
+        }
+      }
+
+      for(var i=deletes.length-1;i>=0;i--){
+        oks.splice(deletes[i],1)
+      }
+
       if(oks.length>5){
         oks = oks.slice(0,5);
       }
