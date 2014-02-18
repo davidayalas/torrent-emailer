@@ -306,7 +306,8 @@ function main(){
     r = getData(chapter, priority);
     if(r.length==0){
       r = getData(reformatEpisode(chapter), priority);
-    }  
+    }
+    
     if(r.length>0){
       body.push("<ul><li><strong>",chapter.toUpperCase(),"</strong><ul>");
       for(var i=0;i<r.length;i++){
