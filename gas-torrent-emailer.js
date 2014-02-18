@@ -124,7 +124,7 @@ var eztvData = function(strtorrent){
         if(torrents.length>=3){
           aux = torrents[3].split("href=\"");
           if(aux.length>1 && aux[1].indexOf("magnet")==-1){
-            link.push(aux[1].slice(0,aux[1].indexOf('"')));
+            link.push((aux[1].indexOf("http://")===-1?"http:":"")+aux[1].slice(0,aux[1].indexOf('"')));
           }
         }
         if(title!="" && link.length>0){
