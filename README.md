@@ -36,6 +36,10 @@ How to set up
 
 	[<img src="https://raw.github.com/davidayalas/torrent-emailer/master/samples/run.png">](https://raw.github.com/davidayalas/torrent-emailer/master/samples/run.png)<br /><br />
 
-*    You can setup a special **Project Property** named "priority" with the values of "eztv" or "pb" (thepiratebay), separated by comma (","), to select the order of the services to query for torrents. Default processing order is 1: eztv and 2: thepiratebay. For example, you can setup: "eztv,pb" or "pb,eztv" or only one "pb" or "eztv"<br /><br /> 
+*    You can setup special **Project Properties**:
+
+	- "priority": with the values of "eztv" or "pb" (thepiratebay), separated by comma (","), to select the order of the services to query for torrents. Default processing order is 1: eztv and 2: thepiratebay. For example, you can setup: "eztv,pb" or "pb,eztv" or only one "pb" or "eztv"<br /><br /> 
+
+	- "include": a comma separated list of strings to search in links. It will retrieve only those that contain one of the strings. E.g "720p,480p"
 
 *	Enjoy it

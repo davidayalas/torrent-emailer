@@ -41,23 +41,43 @@ var getTagContent = function(str,isInitTagClosed,tag){
 }  
 
 /**
+ * finds if a value of an array exists in string 
+ *
+ * @param {Array} arr
+ * @param {String} str
+ * @return {Boolean}
+ */
+var existsArrInStr = function(arr, str){
+  str = str.toLowerCase();
+  for(var i=0,z=arr.length;i<z;i++){
+    if(str.indexOf(arr[i])>-1){
+      return true;
+    }
+  }
+  return false;
+}
+
+
+/**
  * Searches for torrent content
  *
- * @param {String} str
+ * @param {String} strtorrent
  * @param {Array} services
+ * @param {Array} includes
  * @return {Array}
  */
-var getData = function(strtorrent, services){
-  var torrents = [];
-  var dataServices = {
-    "eztv" : "eztvData",
-    "pb" : "pirateBayData"
-  };
+var getData = function(strtorrent, services, includes){
+  var torrents = [],
+      dataServices = {
+        "eztv" : "eztvData",
+        "pb" : "pirateBayData"
+      };
+  
   var self = this;
 
   for(var i=0,z=services.length;i<z;i++){
     if(torrents.length==0 && dataServices[services[i]]){
-      torrents = self[dataServices[services[i]]](strtorrent);
+      torrents = self[dataServices[services[i]]](strtorrent,includes);
     }
   }
   return torrents;
@@ -87,10 +107,11 @@ var httpMutedRequest = function(url,options){
 /**
  * Adapter for eztv.it 
  *
- * @param {String} str
+ * @param {String} strtorrent
+ * @param {String} includes
  * @return {Array}
  */
-var eztvData = function(strtorrent){
+var eztvData = function(strtorrent,includes){
   var response = httpMutedRequest("http://eztv.it/search/",{    
      'payload' : {
         'SearchString1': strtorrent
@@ -127,7 +148,7 @@ var eztvData = function(strtorrent){
             link.push((aux[1].indexOf("http://")===-1?"http:":"")+aux[1].slice(0,aux[1].indexOf('"')));
           }
         }
-        if(title!="" && link.length>0){
+        if(title!="" && link.length>0 && ((includes.length>0 && existsArrInStr(includes,title)) || includes.length==0)){
           oks.push([title,link]);
         }
       }
@@ -151,13 +172,15 @@ var getPirateBayDNS = function(){
   }
 }
 
+
 /**
  * Adapter for PirateBay 
  *
- * @param {String} str
+ * @param {String} strtorrent
+ * @param {String} includes
  * @return {Array}
  */
-var pirateBayData = function(strtorrent){
+var pirateBayData = function(strtorrent, includes){
   var response = null;
   
   if(CacheService.getPublicCache().get("piratebaydns")==="" || CacheService.getPublicCache().get("piratebaydns")===null){
@@ -189,6 +212,9 @@ var pirateBayData = function(strtorrent){
       if(title.toLowerCase().indexOf(strtorrent)>-1){
         torrents = cols[2].split("magnet:?");
         if(torrents.length>1){
+          if(includes.length>0 && !existsArrInStr(includes,title)){//include string checking
+            continue;
+          }
           //torrent file
           link = [];
           link.push(["magnet:?"+torrents[1].slice(0,torrents[1].indexOf('&tr=')),getTagContent(cols[3],false,"td")]); //link, seeds
@@ -199,8 +225,9 @@ var pirateBayData = function(strtorrent){
       }
     }
     
-    //gets only five first links and I need a significant number of torrents (10?) to avoid trailers, or something else than a TV Show 
-    if(oks.length>=10){
+    //gets only five first links and I need a significant number of torrents (10?) to avoid trailers, or something else than a TV Show
+    //if a search string is included (e.g "720p") with only one link its ok
+    if((includes.length==0 && oks.length>=10) || (includes.length>0 && oks.length>0)){
       oks.sort(function(a,b){
         return b[1][0][1]-a[1][0][1];
       });
@@ -239,10 +266,11 @@ var pirateBayData = function(strtorrent){
  *                 string in properties, if season or episode are uppercase they will be updated to lowercase 
  */
 var updateProperties = function(str,as,i,original){
-  var tvshow = str.slice(0,str.lastIndexOf(" "));
-  var currentEpisode = str.slice(str.lastIndexOf(" "));
-  var season = currentEpisode.slice(0,currentEpisode.indexOf("e")+1);
-  var episode = currentEpisode.slice(currentEpisode.indexOf("e")+1);
+  var tvshow = str.slice(0,str.lastIndexOf(" ")),
+      currentEpisode = str.slice(str.lastIndexOf(" ")),
+      season = currentEpisode.slice(0,currentEpisode.indexOf("e")+1),
+      episode = currentEpisode.slice(currentEpisode.indexOf("e")+1);
+  
   episode = ""+((episode*1)+1);
   
   tvshow = tvshow + season + (episode.length==1?"0"+episode:episode);
@@ -262,10 +290,11 @@ var updateProperties = function(str,as,i,original){
  * @return {String}
  */
 var reformatEpisode = function(str){
-  var tvshow = str.slice(0,str.lastIndexOf(" "));
-  var currentEpisode = str.slice(str.lastIndexOf(" ")+1);
-  var season = currentEpisode.slice(1,currentEpisode.indexOf("e"));
-  var episode = currentEpisode.slice(currentEpisode.indexOf("e")+1);
+  var tvshow = str.slice(0,str.lastIndexOf(" ")),
+      currentEpisode = str.slice(str.lastIndexOf(" ")+1),
+      season = currentEpisode.slice(1,currentEpisode.indexOf("e")),
+      episode = currentEpisode.slice(currentEpisode.indexOf("e")+1);
+  
   season = season*1;
   return tvshow + " " + season + "x" + episode;
 }
@@ -275,14 +304,16 @@ var reformatEpisode = function(str){
  * Pattern of properties has to be "tvshow sXXeXX" > "dexter s07s07"
  */
 function main(){
-  var body = [];
-  var props = [];
-  var r;
-  var as = SpreadsheetApp.getActiveSheet();
-  var priority = ScriptProperties.getProperty("priority");
+  var body = [],
+      props = [],
+      r,
+      as = SpreadsheetApp.getActiveSheet(),
+      priority = ScriptProperties.getProperty("priority"),
+      includes = ScriptProperties.getProperty("include"); //string that must be present in links
   
   priority = priority===null?["eztv","pb"]:priority.split(",");
-  
+  includes = includes===null?[]:includes.split(",");
+    
   if(as){
     var c = 1;
     do{
@@ -299,15 +330,14 @@ function main(){
   var chapter;
   for(var l=0,x=props.length;l<x;l++){
     chapter = props[l].toLowerCase();
-    if(chapter==="priority"){ //priority is an option
+    if(chapter==="priority" || chapter==="include"){ //priority and include are options
       continue;
     }
 
-    r = getData(chapter, priority);
+    r = getData(chapter, priority, includes);
     if(r.length==0){
-      r = getData(reformatEpisode(chapter), priority);
-    }
-    
+      r = getData(reformatEpisode(chapter), priority, includes);
+    }  
     if(r.length>0){
       body.push("<ul><li><strong>",chapter.toUpperCase(),"</strong><ul>");
       for(var i=0;i<r.length;i++){
