@@ -57,6 +57,13 @@ var existsArrInStr = function(arr, str){
   return false;
 }
 
+/**
+ * Global data services to query
+ */
+var dataServices = {
+    "eztv" : "eztvData",
+    "pb" : "pirateBayData"
+};
 
 /**
  * Searches for torrent content
@@ -67,16 +74,12 @@ var existsArrInStr = function(arr, str){
  * @return {Array}
  */
 var getData = function(strtorrent, services, includes){
-  var torrents = [],
-      dataServices = {
-        "eztv" : "eztvData",
-        "pb" : "pirateBayData"
-      };
+  var torrents = [];
   
   var self = this;
 
   for(var i=0,z=services.length;i<z;i++){
-    if(torrents.length==0 && dataServices[services[i]]){
+    if(torrents.length===0 && dataServices[services[i]]){
       torrents = self[dataServices[services[i]]](strtorrent,includes);
     }
   }
@@ -122,12 +125,14 @@ var eztvData = function(strtorrent,includes){
       'method' : 'post',
   });  
   
-  if(response===null) return [];
+  if(response===null){ 
+    return [];
+  }
   
   var data = response.getContentText();
   
   data = data.split("forum_header_border");
-  
+
   if(data.length>0){
 
     var cols,title,link,aux;
@@ -144,11 +149,11 @@ var eztvData = function(strtorrent,includes){
         link = [];
         if(torrents.length>=3){
           aux = torrents[3].split("href=\"");
-          if(aux.length>1 && aux[1].indexOf("magnet")==-1){
+          if(aux.length>1 && aux[1].indexOf("magnet")===-1){
             link.push((aux[1].indexOf("http://")===-1?"http:":"")+aux[1].slice(0,aux[1].indexOf('"')));
           }
         }
-        if(title!="" && link.length>0 && ((includes.length>0 && existsArrInStr(includes,title)) || includes.length==0)){
+        if(title!=="" && link.length>0 && ((includes.length>0 && existsArrInStr(includes,title)) || includes.length===0)){
           oks.push([title,link]);
         }
       }
@@ -162,6 +167,8 @@ var eztvData = function(strtorrent,includes){
  *
  */
 var getPirateBayDNS = function(){
+  if(!dataServices["pb"]) return null; 
+  
   var dns = ["org","sx","se","pe"];
   for(var d=0,r=dns.length;d<r;d++){
     response = httpMutedRequest("http://thepiratebay."+dns[d]);
@@ -170,6 +177,7 @@ var getPirateBayDNS = function(){
       return;
     }
   }
+  delete dataServices["pb"]
 }
 
 
@@ -183,8 +191,12 @@ var getPirateBayDNS = function(){
 var pirateBayData = function(strtorrent, includes){
   var response = null;
   
-  if(CacheService.getPublicCache().get("piratebaydns")==="" || CacheService.getPublicCache().get("piratebaydns")===null){
+  if(dataServices["pb"] && (CacheService.getPublicCache().get("piratebaydns")==="" || CacheService.getPublicCache().get("piratebaydns")===null)){
     getPirateBayDNS();
+  }
+  
+  if(!dataServices["pb"]){//piratebay is down
+    return [];
   }
   
   response = httpMutedRequest("http://"+CacheService.getPublicCache().get("piratebaydns")+"/search/"+encodeURIComponent(strtorrent)+"/0/99/0");
@@ -202,7 +214,7 @@ var pirateBayData = function(strtorrent, includes){
   
   if(data.length>0){
     var cols,title,link,aux,torrents;
-    var oks = [];
+    var oks = [], seeds;
     
     for(var i=1,z=data.length;i<z;i++){
       cols = data[i].split("<td");
@@ -212,12 +224,14 @@ var pirateBayData = function(strtorrent, includes){
       if(title.toLowerCase().indexOf(strtorrent)>-1){
         torrents = cols[2].split("magnet:?");
         if(torrents.length>1){
-          if(includes.length>0 && !existsArrInStr(includes,title)){//include string checking
+          seeds = parseInt(getTagContent(cols[3],false,"td"))
+          if((includes.length>0 && !existsArrInStr(includes,title)) || seeds===0){//include string checking and seeds > 0
             continue;
           }
+
           //torrent file
           link = [];
-          link.push(["magnet:?"+torrents[1].slice(0,torrents[1].indexOf('&tr=')),getTagContent(cols[3],false,"td")]); //link, seeds
+          link.push(["magnet:?"+torrents[1].slice(0,torrents[1].indexOf('&tr=')),seeds]); //link, seeds
           if(title!="" && link.length>0){
             oks.push([title,link]); 
           }
@@ -300,6 +314,20 @@ var reformatEpisode = function(str){
 }
 
 /**
+ * Check triggers and setup a generic one if triggers aren't configured
+ */
+var checkTriggers = function(){
+  if(ScriptApp.getProjectTriggers().length>0){
+    return;
+  }
+  
+  ScriptApp.newTrigger('main')
+   .timeBased()
+   .everyHours(4)
+   .create();
+}
+
+/**
  * Check for the TV Shows in the User Properties and emails the torrents if it finds them. 
  * Pattern of properties has to be "tvshow sXXeXX" > "dexter s07s07"
  */
@@ -313,7 +341,9 @@ function main(){
   
   priority = priority===null?["eztv","pb"]:priority.split(",");
   includes = includes===null?[]:includes.split(",");
-    
+  
+  checkTriggers();
+  
   if(as){
     var c = 1;
     do{
@@ -355,5 +385,4 @@ function main(){
     }
     body=[];
   }
-    
 } 
