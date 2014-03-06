@@ -225,7 +225,7 @@ var pirateBayData = function(strtorrent, includes){
         torrents = cols[2].split("magnet:?");
         if(torrents.length>1){
           seeds = parseInt(getTagContent(cols[3],false,"td"))
-          if((includes.length>0 && !existsArrInStr(includes,title)) || seeds===0){//include string checking and seeds > 0
+          if((includes.length>0 && !existsArrInStr(includes,title)) || seeds<50){//include string checking and seeds > 50 to discard fakes or something
             continue;
           }
 
@@ -340,7 +340,7 @@ function main(){
       includes = ScriptProperties.getProperty("include"); //string that must be present in links
   
   priority = priority===null?["eztv","pb"]:priority.split(",");
-  includes = includes===null?[]:includes.split(",");
+  includes = includes===null || includes===""?[]:includes.split(",");
   
   checkTriggers();
   
