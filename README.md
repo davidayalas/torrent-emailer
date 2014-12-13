@@ -18,7 +18,7 @@ How to set up
 
 *	Copy the code of the [script](https://raw.github.com/davidayalas/torrent-emailer/master/gas-torrent-emailer.js) in your script (Tools > Script Editor if you are in a SpreadSheet)
 
-* 	If you will use only the script, go to **File > Project Properties**, and in the pop up window, select **Project properties** and add a list with your TV Shows. If you will use a SpreadSheet to manage your TV Shows, first column of the SpreadSheet has to contain the them. The format has to be "tv show sXXeXX" where "s" is the season and "e" the current episode to download. Sample "Dexter s07e01"
+* 	If you will use only the script, go to **File > Project Properties**, and in the pop up window, select **Project properties** and add a list with your TV Shows. If you will use a SpreadSheet to manage your TV Shows, first column of the SpreadSheet has to contain the them. The format has to be "tv show sXXeXX" where "s" is the season and "e" the current episode to download. Sample "Dexter s07e01". In the "value" field, you have to put anything you want (e.g. "-").
 
 	[<img src="https://raw.github.com/davidayalas/torrent-emailer/master/samples/project-properties.png">](https://raw.github.com/davidayalas/torrent-emailer/master/samples/project-properties.png)
 
@@ -38,7 +38,7 @@ How to set up
 
 *    You can setup special **Project Properties**:
 
-	- "priority": with the values of "eztv" or "pb" (thepiratebay), separated by comma (","), to select the order of the services to query for torrents. Default processing order is 1: eztv and 2: thepiratebay. For example, you can setup: "eztv,pb" or "pb,eztv" or only one "pb" or "eztv"<br /><br /> 
+	- "priority": with the values of "eztv" or "pb" (thepiratebay), separated by comma (","), to select the order of the services to query for torrents. Default processing order is 1: eztv, 2: thepiratebay, 3: kickass. For example, you can setup: "eztv,pb,kickass" or "kickass,pb,eztv" or only one "pb" or "eztv"<br /><br /> 
 
 	- "include": a comma separated list of strings to search in links. It will retrieve only those that contain one of the strings. E.g "720p,480p"
 

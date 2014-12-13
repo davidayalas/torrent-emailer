@@ -23,6 +23,7 @@ var replaces = function(str){
             .replace(/\[.*\]/g,"")
             .replace(/^\s+|\s+$/g,"")
             .replace(/\./g," ")
+            .replace(/\s{2,}/g, ' ')
          ;
 }  
 
@@ -62,7 +63,8 @@ var existsArrInStr = function(arr, str){
  */
 var dataServices = {
     "eztv" : "eztvData",
-    "pb" : "pirateBayData"
+    "pb" : "pirateBayData",
+    "kickass" : "kickassData"
 };
 
 /**
@@ -77,10 +79,9 @@ var getData = function(strtorrent, services, includes){
   var torrents = [];
   
   var self = this;
-
   for(var i=0,z=services.length;i<z;i++){
     if(torrents.length===0 && dataServices[services[i]]){
-      torrents = self[dataServices[services[i]]](strtorrent,includes);
+       torrents = self[dataServices[services[i]]](strtorrent,includes);
     }
   }
   return torrents;
@@ -106,6 +107,46 @@ var httpMutedRequest = function(url,options){
   } 
   return res;
 } 
+
+/**
+ * Adapter for kickass.so 
+ *
+ * @param {String} strtorrent
+ * @param {String} includes
+ * @return {Array}
+ */
+var kickassData = function(strtorrent,includes){
+  var response = httpMutedRequest("https://kickass.so/usearch/"+encodeURIComponent(strtorrent));
+  
+  if(response===null){ 
+    return [];
+  }
+  
+  var data = response.getContentText();
+  
+  data = data.split('"torrent_');
+  if(data.length>0){
+    var cols,title,link,aux;
+    var oks = [];
+    for(var i=1,z=data.length;i<z;i++){
+      cols = data[i].split("<a");
+      if(!cols[8]){
+        continue;
+      }
+      title = replaces(getTagContent(cols[8],false,"a"));
+      //title matching
+      if(title.toLowerCase().indexOf(strtorrent)>-1){
+        //torrent file
+        link = cols[4].split("href=\"");
+        link = link[1].slice(0, link[1].indexOf("\""));
+        if(title!=="" && ((includes.length>0 && existsArrInStr(includes,title)) || includes.length===0)){
+          oks.push([title,[link]]);
+        }
+      }
+    }
+    return oks;
+  }
+}  
 
 /**
  * Adapter for eztv.it 
@@ -143,7 +184,6 @@ var eztvData = function(strtorrent,includes){
       //title matching
       if(title.toLowerCase().indexOf(strtorrent)>-1){
         //torrent file
-        link = ""; 
         torrents = getTagContent(cols[3],false,"td");
         torrents = torrents.split("<a");
         link = [];
@@ -169,7 +209,7 @@ var eztvData = function(strtorrent,includes){
 var getPirateBayDNS = function(){
   if(!dataServices["pb"]) return null; 
   
-  var dns = ["org","sx","se","pe"];
+  var dns = ["cr","org","sx","se","pe"];
   for(var d=0,r=dns.length;d<r;d++){
     response = httpMutedRequest("http://thepiratebay."+dns[d]);
     if(response!==null){
@@ -225,7 +265,7 @@ var pirateBayData = function(strtorrent, includes){
         torrents = cols[2].split("magnet:?");
         if(torrents.length>1){
           seeds = parseInt(getTagContent(cols[3],false,"td"))
-          if((includes.length>0 && !existsArrInStr(includes,title)) || seeds<50){//include string checking and seeds > 50 to discard fakes or something
+          if((includes.length>0 && !existsArrInStr(includes,title)) || seeds<1500){//include string checking and seeds > 1500 to discard fakes or something
             continue;
           }
 
@@ -239,9 +279,9 @@ var pirateBayData = function(strtorrent, includes){
       }
     }
     
-    //gets only five first links and I need a significant number of torrents (10?) to avoid trailers, or something else than a TV Show
+    //gets only five first links and I need a significant number of torrents (5?) to avoid trailers, or something else than a TV Show
     //if a search string is included (e.g "720p") with only one link its ok
-    if((includes.length==0 && oks.length>=10) || (includes.length>0 && oks.length>0)){
+    if((includes.length===0 && oks.length>=1) || (includes.length>0 && oks.length>0)){
       oks.sort(function(a,b){
         return b[1][0][1]-a[1][0][1];
       });
@@ -287,13 +327,13 @@ var updateProperties = function(str,as,i,original){
   
   episode = ""+((episode*1)+1);
   
-  tvshow = tvshow + season + (episode.length==1?"0"+episode:episode);
+  tvshow = tvshow + season + (episode.length===1?"0"+episode:episode);
   
   if(as){
     as.getRange("A"+i).setValue(tvshow);  
   }else{
-    ScriptProperties.deleteProperty(original);
-    ScriptProperties.setProperty(tvshow,"");
+    PropertiesService.getScriptProperties().deleteProperty(original);
+    PropertiesService.getScriptProperties().setProperty(tvshow,"-");
   }
 }
 
@@ -336,10 +376,10 @@ function main(){
       props = [],
       r,
       as = SpreadsheetApp.getActiveSheet(),
-      priority = ScriptProperties.getProperty("priority"),
-      includes = ScriptProperties.getProperty("include"); //string that must be present in links
+      priority = PropertiesService.getScriptProperties().getProperty("priority"),
+      includes = PropertiesService.getScriptProperties().getProperty("include"); //string that must be present in links
   
-  priority = priority===null?["eztv","pb"]:priority.split(",");
+  priority = priority===null?["eztv","pb","bit"]:priority.split(",");
   includes = includes===null || includes===""?[]:includes.split(",");
   
   checkTriggers();
@@ -354,20 +394,20 @@ function main(){
       c++;
     }while(r!="")  
   }else{
-    props = ScriptProperties.getKeys();
+    props = PropertiesService.getScriptProperties().getKeys();
   }
-    
+  
   var chapter;
   for(var l=0,x=props.length;l<x;l++){
     chapter = props[l].toLowerCase();
     if(chapter==="priority" || chapter==="include"){ //priority and include are options
       continue;
     }
-
+    
     r = getData(chapter, priority, includes);
     if(r.length==0){
       r = getData(reformatEpisode(chapter), priority, includes);
-    }  
+    }
     if(r.length>0){
       body.push("<ul><li><strong>",chapter.toUpperCase(),"</strong><ul>");
       for(var i=0;i<r.length;i++){
@@ -381,7 +421,7 @@ function main(){
       updateProperties(chapter,as,l+1,props[l]);
     }
     if(body.length>0){  
-      MailApp.sendEmail(Session.getUser().getEmail(), "[Google Apps Torrent Email] - " + chapter.toUpperCase(),"", {htmlBody: body.join("")});  
+      MailApp.sendEmail(Session.getActiveUser().getEmail(), "[Google Apps Torrent Email] - " + chapter.toUpperCase(),"", {htmlBody: body.join("")});  
     }
     body=[];
   }
