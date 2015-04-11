@@ -116,7 +116,7 @@ var httpMutedRequest = function(url,options){
  * @return {Array}
  */
 var kickassData = function(strtorrent,includes){
-  var response = httpMutedRequest("https://kickass.so/usearch/"+encodeURIComponent(strtorrent));
+  var response = httpMutedRequest("https://kickass.to/usearch/"+encodeURIComponent(strtorrent));
   
   if(response===null){ 
     return [];
@@ -238,10 +238,8 @@ var pirateBayData = function(strtorrent, includes){
   if(!dataServices["pb"]){//piratebay is down
     return [];
   }
-  
-  response = httpMutedRequest("http://"+CacheService.getPublicCache().get("piratebaydns")+"/search/"+encodeURIComponent(strtorrent)+"/0/99/0");
-  
-  if(response===null){//maybe dns problem
+
+if(CacheService.getPublicCache().get("piratebaydns")===null){//maybe dns problem
     getPirateBayDNS();
     response = httpMutedRequest("http://"+CacheService.getPublicCache().get("piratebaydns")+"/search/"+encodeURIComponent(strtorrent)+"/0/99/0");
   }
@@ -265,7 +263,7 @@ var pirateBayData = function(strtorrent, includes){
         torrents = cols[2].split("magnet:?");
         if(torrents.length>1){
           seeds = parseInt(getTagContent(cols[3],false,"td"))
-          if((includes.length>0 && !existsArrInStr(includes,title)) || seeds<1500){//include string checking and seeds > 1500 to discard fakes or something
+          if((includes.length>0 && !existsArrInStr(includes,title))){ //|| seeds<1500){//include string checking and seeds > 1500 to discard fakes or something
             continue;
           }
 
