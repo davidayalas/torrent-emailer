@@ -155,7 +155,7 @@ var kickassData = function(strtorrent,includes){
  * @param {String} includes
  * @return {Array}
  */
-var eztvData = function(strtorrent,includes){
+/*var eztvData = function(strtorrent,includes){
   var response = httpMutedRequest("http://eztv.it/search/",{    
      'payload' : {
         'SearchString1': strtorrent
@@ -200,7 +200,7 @@ var eztvData = function(strtorrent,includes){
     }
     return oks;
   }
-}  
+}*/  
 
 /**
  * Get the current DNS for piratebay and set its in Public Cache (if it was shared...) 
@@ -239,10 +239,11 @@ var pirateBayData = function(strtorrent, includes){
     return [];
   }
 
-if(CacheService.getPublicCache().get("piratebaydns")===null){//maybe dns problem
+  if(CacheService.getPublicCache().get("piratebaydns")===null){//maybe dns problem
     getPirateBayDNS();
-    response = httpMutedRequest("http://"+CacheService.getPublicCache().get("piratebaydns")+"/search/"+encodeURIComponent(strtorrent)+"/0/99/0");
   }
+
+  response = httpMutedRequest("http://"+CacheService.getPublicCache().get("piratebaydns")+"/search/"+encodeURIComponent(strtorrent)+"/0/99/0");
   
   if(response===null) return [];
 
