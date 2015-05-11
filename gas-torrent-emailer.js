@@ -378,7 +378,7 @@ function main(){
       priority = PropertiesService.getScriptProperties().getProperty("priority"),
       includes = PropertiesService.getScriptProperties().getProperty("include"); //string that must be present in links
   
-  priority = priority===null?["eztv","pb","bit"]:priority.split(",");
+  priority = priority===null?["pb","bit"]:priority.split(",");
   includes = includes===null || includes===""?[]:includes.split(",");
   
   checkTriggers();
