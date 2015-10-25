@@ -62,7 +62,7 @@ var existsArrInStr = function(arr, str){
  * Global data services to query
  */
 var dataServices = {
-    "eztv" : "eztvData",
+    //"eztv" : "eztvData",
     "pb" : "pirateBayData",
     "kickass" : "kickassData"
 };
@@ -75,13 +75,13 @@ var dataServices = {
  * @param {Array} includes
  * @return {Array}
  */
-var getData = function(strtorrent, services, includes){
+var getData = function(strtorrent, services, includes, min_torrent_files, min_seeds){
   var torrents = [];
   
   var self = this;
   for(var i=0,z=services.length;i<z;i++){
     if(torrents.length===0 && dataServices[services[i]]){
-       torrents = self[dataServices[services[i]]](strtorrent,includes);
+       torrents = self[dataServices[services[i]]](strtorrent,includes,min_torrent_files,min_seeds);
     }
   }
   return torrents;
@@ -113,9 +113,11 @@ var httpMutedRequest = function(url,options){
  *
  * @param {String} strtorrent
  * @param {String} includes
+ * @param {Number} min_torrent_files //not used yet
+ * @param {Number} min_seeds //not used yet
  * @return {Array}
  */
-var kickassData = function(strtorrent,includes){
+var kickassData = function(strtorrent,includes,min_torrent_files,min_seeds){
   var response = httpMutedRequest("https://kickass.to/usearch/"+encodeURIComponent(strtorrent));
   
   if(response===null){ 
@@ -226,9 +228,11 @@ var getPirateBayDNS = function(){
  *
  * @param {String} strtorrent
  * @param {String} includes
+ * @param {Number} min_torrent_files //not used yet
+ * @param {Number} min_seeds //not used yet
  * @return {Array}
  */
-var pirateBayData = function(strtorrent, includes){
+var pirateBayData = function(strtorrent, includes, min_torrent_files, min_seeds){
   var response = null;
   
   if(dataServices["pb"] && (CacheService.getPublicCache().get("piratebaydns")==="" || CacheService.getPublicCache().get("piratebaydns")===null)){
@@ -239,21 +243,21 @@ var pirateBayData = function(strtorrent, includes){
     return [];
   }
 
-  if(CacheService.getPublicCache().get("piratebaydns")===null){//maybe dns problem
+if(CacheService.getPublicCache().get("piratebaydns")===null){//maybe dns problem
     getPirateBayDNS();
   }
-
-  response = httpMutedRequest("http://"+CacheService.getPublicCache().get("piratebaydns")+"/search/"+encodeURIComponent(strtorrent)+"/0/99/0");
-  
+    response = httpMutedRequest("http://"+CacheService.getPublicCache().get("piratebaydns")+"/search/"+encodeURIComponent(strtorrent)+"/0/99/0");
+ 
   if(response===null) return [];
 
   var data = response.getContentText();
   
   data = data.split("<tr>");
-  
+ 
   if(data.length>0){
     var cols,title,link,aux,torrents;
     var oks = [], seeds;
+    var prob_oks = 0;
     
     for(var i=1,z=data.length;i<z;i++){
       cols = data[i].split("<td");
@@ -261,10 +265,11 @@ var pirateBayData = function(strtorrent, includes){
 
       //title matching
       if(title.toLowerCase().indexOf(strtorrent)>-1){
+        prob_oks++;
         torrents = cols[2].split("magnet:?");
         if(torrents.length>1){
           seeds = parseInt(getTagContent(cols[3],false,"td"))
-          if((includes.length>0 && !existsArrInStr(includes,title))){ //|| seeds<1500){//include string checking and seeds > 1500 to discard fakes or something
+          if((includes.length>0 && !existsArrInStr(includes,title)) || seeds<min_seeds){//include string checking and seeds to discard fakes or something
             continue;
           }
 
@@ -280,7 +285,8 @@ var pirateBayData = function(strtorrent, includes){
     
     //gets only five first links and I need a significant number of torrents (5?) to avoid trailers, or something else than a TV Show
     //if a search string is included (e.g "720p") with only one link its ok
-    if((includes.length===0 && oks.length>=1) || (includes.length>0 && oks.length>0)){
+    //if((includes.length===0 && oks.length>=min_torrent_files) || (includes.length>0 && oks.length>0)){
+    if(prob_oks>=min_torrent_files){
       oks.sort(function(a,b){
         return b[1][0][1]-a[1][0][1];
       });
@@ -376,11 +382,15 @@ function main(){
       r,
       as = SpreadsheetApp.getActiveSheet(),
       priority = PropertiesService.getScriptProperties().getProperty("priority"),
-      includes = PropertiesService.getScriptProperties().getProperty("include"); //string that must be present in links
+      includes = PropertiesService.getScriptProperties().getProperty("include"), //string that must be present in links
+      min_torrent_files =PropertiesService.getScriptProperties().getProperty("min_torrent_files"),
+      min_seeds =PropertiesService.getScriptProperties().getProperty("min_seeds");
   
-  priority = priority===null?["pb","bit"]:priority.split(",");
+  priority = priority===null?["pb","kickass"]:priority.split(",");
   includes = includes===null || includes===""?[]:includes.split(",");
-  
+  min_torrent_files = min_torrent_files!==null?min_torrent_files:10;
+  min_seeds = min_seeds!==null?min_seeds:1000;
+
   checkTriggers();
   
   if(as){
@@ -403,9 +413,9 @@ function main(){
       continue;
     }
     
-    r = getData(chapter, priority, includes);
+    r = getData(chapter, priority, includes,min_torrent_files,min_seeds);
     if(r.length==0){
-      r = getData(reformatEpisode(chapter), priority, includes);
+      r = getData(reformatEpisode(chapter), priority, includes,min_torrent_files,min_seeds);
     }
     if(r.length>0){
       body.push("<ul><li><strong>",chapter.toUpperCase(),"</strong><ul>");
